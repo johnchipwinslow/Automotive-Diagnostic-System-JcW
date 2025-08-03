@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Automotive Diagnostic System{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-tachometer-alt"></i> Dashboard</h2>
+        <p class="text-muted">Welcome, {{ session.username }}! Role: {{ session.role.title() }}</p>
+    </div>
+</div>
+<div class="row">
+    {% if permissions.can_diagnose %}
+    <div class="col-md-6 col-lg-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-stethoscope fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Vehicle Diagnosis</h5>
+                <p class="card-text">Diagnose vehicles using DTC codes and get detailed repair guidance.</p>
+                <a href="{{ url_for('diagnose') }}" class="btn btn-primary">Start Diagnosis</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% if permissions.can_view_logs %}
+    <div class="col-md-6 col-lg-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-history fa-3x text-info mb-3"></i>
+                <h5 class="card-title">Diagnostic Logs</h5>
+                <p class="card-text">View history of all diagnostic sessions and results.</p>
+                <a href="{{ url_for('view_logs') }}" class="btn btn-info">View Logs</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

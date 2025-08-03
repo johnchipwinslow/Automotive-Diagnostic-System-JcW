@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Vehicle Diagnosis - Automotive Diagnostic System{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-stethoscope"></i> Vehicle Diagnosis</h2>
+        <p class="text-muted">Enter vehicle information and DTC codes to get diagnostic guidance.</p>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-car"></i> Vehicle Information & DTC Codes</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="year" class="form-label">Year</label>
+                            <input type="text" class="form-control" id="year" name="year" placeholder="2020" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="make" class="form-label">Make</label>
+                            <input type="text" class="form-control" id="make" name="make" placeholder="Toyota" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="model" class="form-label">Model</label>
+                            <input type="text" class="form-control" id="model" name="model" placeholder="Camry" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="mileage" class="form-label">Mileage</label>
+                            <input type="text" class="form-control" id="mileage" name="mileage" placeholder="85,000">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="vin" class="form-label">VIN</label>
+                        <input type="text" class="form-control" id="vin" name="vin" placeholder="1234567890ABCDEFG">
+                    </div>
+                    <div class="mb-3">
+                        <label for="dtc_codes" class="form-label">DTC Codes</label>
+                        <input type="text" class="form-control" id="dtc_codes" name="dtc_codes" placeholder="P0300, P0171, P0420" required>
+                        <div class="form-text">Enter DTC codes separated by commas (e.g., P0300, P0171)</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Diagnose Vehicle
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
