@@ -33,6 +33,7 @@
         </div>
     </div>
 </div>
+
 {% endif %}
     {% if permissions.can_diagnose %}
     <div class="col-md-6 col-lg-4 mb-3">
@@ -45,6 +46,16 @@
             </div>
         </div>
     </div>
+	<div class="col-md-6 col-lg-4 mb-3">
+    <div class="card h-100">
+        <div class="card-body text-center">
+            <i class="fas fa-barcode fa-3x text-info mb-3"></i>
+            <h5 class="card-title">VIN Decoder</h5>
+            <p class="card-text">Decode a vehicle VIN using the NHTSA database.</p>
+            <a href="{{ url_for('vin_decoder') }}" class="btn btn-info">Decode VIN</a>
+        </div>
+    </div>
+</div>
     {% endif %}
     {% if permissions.can_view_logs %}
     <div class="col-md-6 col-lg-4 mb-3">

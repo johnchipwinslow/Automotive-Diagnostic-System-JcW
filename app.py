@@ -295,6 +295,25 @@ def permission_required(permission):
     return decorator
 
 # Routes
+import requests
+
+@app.route('/vin_decoder', methods=['GET', 'POST'])
+@login_required
+def vin_decoder():
+    vin_data = None
+    error = None
+    if request.method == 'POST':
+        vin = request.form['vin'].strip()
+        if len(vin) != 17:
+            error = "VIN must be exactly 17 characters."
+        else:
+            try:
+                response = requests.get(f"https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/{vin}?format=json")
+                data = response.json()
+                vin_data = [item for item in data['Results'] if item['Value'] and item['Variable'] not in ['Error Code', 'Possible Values']]
+            except Exception as e:
+                error = f"Error decoding VIN: {e}"
+    return render_template('vin_decoder.html', vin_data=vin_data, error=error)
 @app.route('/')
 def index():
     if 'user_id' in session:

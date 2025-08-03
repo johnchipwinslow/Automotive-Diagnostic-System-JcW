@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}VIN Decoder{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-barcode"></i> VIN Decoder</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="vin" class="form-label">Enter VIN</label>
+                        <input type="text" class="form-control" id="vin" name="vin" maxlength="17" required>
+                        <div class="form-text">VIN must be exactly 17 characters.</div>
+                    </div>
+                    <button type="submit" class="btn btn-info">Decode</button>
+                </form>
+                {% if error %}
+                    <div class="alert alert-danger mt-3">{{ error }}</div>
+                {% endif %}
+                {% if vin_data %}
+                    <h5 class="mt-4">Decoded VIN Information</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                            <tbody>
+                                {% for item in vin_data %}
+                                <tr>
+                                    <th>{{ item.Variable }}</th>
+                                    <td>{{ item.Value }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
