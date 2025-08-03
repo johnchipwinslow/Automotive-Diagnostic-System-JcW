@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block title %}Vehicle Diagnosis - Automotive Diagnostic System{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-stethoscope"></i> Vehicle Diagnosis</h2>
+        <p class="text-muted">Enter vehicle information and DTC codes to get diagnostic guidance.</p>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-car"></i> Vehicle Information & DTC Codes</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="vin" class="form-label">VIN</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="vin" name="vin" placeholder="1234567890ABCDEFG">
+                            <button class="btn btn-info" type="button" id="decode-vin-btn">Decode VIN</button>
+                        </div>
+                        <div class="form-text">Optional: Enter a 17-character VIN and click "Decode VIN" to auto-fill vehicle info.</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="year" class="form-label">Year</label>
+                            <input type="text" class="form-control" id="year" name="year" placeholder="2020" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="make" class="form-label">Make</label>
+                            <input type="text" class="form-control" id="make" name="make" placeholder="Toyota" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="model" class="form-label">Model</label>
+                            <input type="text" class="form-control" id="model" name="model" placeholder="Camry" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="mileage" class="form-label">Mileage</label>
+                            <input type="text" class="form-control" id="mileage" name="mileage" placeholder="85,000">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="dtc_codes" class="form-label">DTC Codes</label>
+                        <input type="text" class="form-control" id="dtc_codes" name="dtc_codes" placeholder="P0300, P0171, P0420" required>
+                        <div class="form-text">Enter DTC codes separated by commas (e.g., P0300, P0171)</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Diagnose Vehicle
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-info-circle"></i> VIN Decoder Help</h6>
+            </div>
+            <div class="card-body">
+                <p class="small">
+                    <strong>How to use VIN Decoder:</strong>
+                </p>
+                <ol class="small">
+                    <li>Enter a valid 17-character VIN</li>
+                    <li>Click "Decode VIN" button</li>
+                    <li>Year, Make, and Model will auto-fill</li>
+                    <li>Continue with DTC codes and diagnosis</li>
+                </ol>
+                <div class="alert alert-info small mt-3">
+                    <i class="fas fa-lightbulb"></i>
+                    <strong>Tip:</strong> VIN decoding uses the NHTSA database and works for most vehicles manufactured after 1981.
+                </div>
+            </div>
+        </div>
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6><i class="fas fa-list"></i> Common DTC Codes</h6>
+            </div>
+            <div class="card-body">
+                <div class="small">
+                    <strong>Engine:</strong>
+                    <ul class="mb-2">
+                        <li>P0300 - Random Misfire</li>
+                        <li>P0301-P0308 - Cylinder Misfire</li>
+                        <li>P0171/P0174 - System Lean</li>
+                    </ul>
+                    <strong>Emissions:</strong>
+                    <ul class="mb-2">
+                        <li>P0420/P0430 - Catalyst Efficiency</li>
+                        <li>P0441 - EVAP System</li>
+                    </ul>
+                    <strong>Transmission:</strong>
+                    <ul>
+                        <li>P0700 - Transmission Control</li>
+                        <li>P0750 - Shift Solenoid</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('decode-vin-btn').addEventListener('click', function() {
+    const vin = document.getElementById('vin').value.trim();
+    const button = this;
+    
+    if (vin.length !== 17) {
+        alert('VIN must be exactly 17 characters.');
+        return;
+    }
+    
+    // Show loading state
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Decoding...';
+    button.disabled = true;
+    
+    fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/${vin}?format=json`)
+        .then(response => response.json())
+        .then(data => {
+            let year = '', make = '', model = '';
+            
+            data.Results.forEach(item => {
+                if (item.Variable === 'Model Year' && item.Value) {
+                    year = item.Value;
+                }
+                if (item.Variable === 'Make' && item.Value) {
+                    make = item.Value;
+                }
+                if (item.Variable === 'Model' && item.Value) {
+                    model = item.Value;
+                }
+            });
+            
+            // Fill in the form fields
+            if (year && year !== 'null') {
+                document.getElementById('year').value = year;
+            }
+            if (make && make !== 'null') {
+                document.getElementById('make').value = make;
+            }
+            if (model && model !== 'null') {
+                document.getElementById('model').value = model;
+            }
+            
+            // Show success message
+            if (year || make || model) {
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-success alert-dismissible fade show mt-2';
+                alert.innerHTML = `
+                    <i class="fas fa-check-circle"></i> VIN decoded successfully! Vehicle info has been auto-filled.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.querySelector('.card-body form').insertBefore(alert, document.querySelector('.card-body form').firstChild);
+                
+                // Auto-dismiss after 3 seconds
+                setTimeout(() => {
+                    if (alert.parentNode) {
+                        alert.remove();
+                    }
+                }, 3000);
+            } else {
+                alert('VIN decoded but no vehicle information was found. Please enter details manually.');
+            }
+        })
+        .catch(error => {
+            console.error('VIN decode error:', error);
+            alert('Error decoding VIN. Please check the VIN and try again, or enter vehicle details manually.');
+        })
+        .finally(() => {
+            // Reset button state
+            button.innerHTML = 'Decode VIN';
+            button.disabled = false;
+        });
+});
+
+// Auto-format VIN input (uppercase, remove spaces)
+document.getElementById('vin').addEventListener('input', function() {
+    this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+});
+</script>
+{% endblock %}
