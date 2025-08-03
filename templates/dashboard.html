@@ -8,6 +8,32 @@
     </div>
 </div>
 <div class="row">
+{% if permissions.can_manage_users %}
+<div class="col-md-6 col-lg-4 mb-3">
+    <div class="card h-100">
+        <div class="card-body text-center">
+            <i class="fas fa-users fa-3x text-success mb-3"></i>
+            <h5 class="card-title">User Management</h5>
+            <p class="card-text">Manage user accounts, roles, and permissions.</p>
+            <a href="{{ url_for('manage_users') }}" class="btn btn-success">Manage Users</a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Add this card for password change (admin only) -->
+{% if session.username == 'admin' %}
+<div class="col-md-6 col-lg-4 mb-3">
+    <div class="card h-100">
+        <div class="card-body text-center">
+            <i class="fas fa-key fa-3x text-warning mb-3"></i>
+            <h5 class="card-title">Change Password</h5>
+            <p class="card-text">Update your admin password for security.</p>
+            <a href="{{ url_for('change_password') }}" class="btn btn-warning">Change Password</a>
+        </div>
+    </div>
+</div>
+{% endif %}
     {% if permissions.can_diagnose %}
     <div class="col-md-6 col-lg-4 mb-3">
         <div class="card h-100">

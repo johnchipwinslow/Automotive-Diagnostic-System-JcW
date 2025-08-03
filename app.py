@@ -382,6 +382,84 @@ def view_logs():
 
     conn.close()
     return render_template('logs.html', logs=logs)
+    
+# Admin Routes
+@app.route('/admin/change_password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    if session['username'] != 'admin':
+        flash('Only admin can change this password.', 'error')
+        return redirect(url_for('dashboard'))
+    if request.method == 'POST':
+        new_password = request.form['new_password']
+        user_manager = diagnostic_system.user_manager
+        password_hash = user_manager._hash_password(new_password)
+        conn = sqlite3.connect(user_manager.db_path)
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET password_hash = ? WHERE username = 'admin'", (password_hash,))
+        conn.commit()
+        conn.close()
+        flash('Password updated successfully!', 'success')
+        return redirect(url_for('dashboard'))
+    return render_template('change_password.html')
 
+@app.route('/admin/add_user', methods=['GET', 'POST'])
+@login_required
+@permission_required('can_manage_users')
+def add_user():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        email = request.form['email']
+        role = request.form['role']
+        
+        user_manager = diagnostic_system.user_manager
+        password_hash = user_manager._hash_password(password)
+        
+        try:
+            conn = sqlite3.connect(user_manager.db_path)
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO users (username, password_hash, email, role, created_date, is_active)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', (username, password_hash, email, role, datetime.datetime.now().isoformat(), True))
+            conn.commit()
+            conn.close()
+            flash(f'User {username} added successfully!', 'success')
+            return redirect(url_for('manage_users'))
+        except sqlite3.IntegrityError:
+            flash('Username or email already exists!', 'error')
+    
+    return render_template('add_user.html')
+
+@app.route('/admin/manage_users')
+@login_required
+@permission_required('can_manage_users')
+def manage_users():
+    conn = sqlite3.connect(diagnostic_system.user_manager.db_path)
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        SELECT user_id, username, email, role, created_date, last_login, is_active
+        FROM users
+        ORDER BY created_date DESC
+    ''')
+    
+    users = []
+    for row in cursor.fetchall():
+        users.append({
+            'user_id': row[0],
+            'username': row[1],
+            'email': row[2],
+            'role': row[3],
+            'created_date': row[4][:19] if row[4] else '',
+            'last_login': row[5][:19] if row[5] else 'Never',
+            'is_active': row[6]
+        })
+    
+    conn.close()
+    return render_template('manage_users.html', users=users)
+    
+    
 if __name__ == '__main__':
     app.run(debug=True)
