@@ -10,6 +10,7 @@ from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-change-this-in-production')
+app.url_map.strict_slashes = False
 
 @dataclass
 class User:
@@ -301,7 +302,9 @@ def index():
     return render_template('login.html')
 
 @app.route('/login', methods=['GET', 'POST'])
+@app.route('/login/', methods=['GET', 'POST'])
 def login():
+    ...
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
